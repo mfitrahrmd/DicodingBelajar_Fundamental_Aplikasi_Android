@@ -19,4 +19,10 @@
         android:layout_height="wrap_content"
         android:text="Category Description" />
 
+    <Button
+        android:id="@+id/btnToHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="To Home" />
+
 </LinearLayout>
