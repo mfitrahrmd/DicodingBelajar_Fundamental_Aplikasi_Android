@@ -5,17 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".CategoryFragment">
+    tools:context=".DetailCategoryFragment">
 
     <TextView
+        android:id="@+id/tvCategoryName"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="This is Category Fragment" />
-    
-    <Button
-        android:id="@+id/btnToCategoryLifestyle"
+        android:layout_height="wrap_content"
+        android:text="Category Name" />
+
+    <TextView
+        android:id="@+id/tvCategoryDescription"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="To Category Lifestyle" />
+        android:layout_height="wrap_content"
+        android:text="Category Description" />
 
 </LinearLayout>
