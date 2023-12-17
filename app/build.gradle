@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace 'com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android"
