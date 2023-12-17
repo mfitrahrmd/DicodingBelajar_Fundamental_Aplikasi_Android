@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Dicoding-Belajar_Fundamental_Aplikasi_Android</string>
+    <string name="app_name">Dicoding</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
