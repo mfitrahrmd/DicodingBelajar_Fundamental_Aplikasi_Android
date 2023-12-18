@@ -1,55 +1,62 @@
 package com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android
 
-import android.opengl.Visibility
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.loopj.android.http.AsyncHttpClient
-import com.loopj.android.http.AsyncHttpResponseHandler
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.google.gson.annotations.SerializedName
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.databinding.ActivityMainBinding
-import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.databinding.ItemTodoBinding
-import cz.msebera.android.httpclient.Header
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import java.lang.Exception
-import java.util.ArrayList
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
-data class Todo(val title: String)
+data class User(
+    @field:SerializedName("id") val id: Int,
+    @field:SerializedName("email") val email: String,
+    @field:SerializedName("first_name") val firstName: String,
+    @field:SerializedName("last_name") val lastName: String,
+    @field:SerializedName("avatar") val avatar: String
+)
 
-class TodosAdapter(val todos: List<Todo>) : RecyclerView.Adapter<TodosAdapter.VH>() {
-    class VH(val binding: ItemTodoBinding) : RecyclerView.ViewHolder(binding.root) {
+data class ResponseUser(
+    @field:SerializedName("page") val page: Int,
+    @field:SerializedName("per_page") val perPage: Int,
+    @field:SerializedName("total") val total: Int,
+    @field:SerializedName("total_pages") val totalPages: Int,
+    @field:SerializedName("data") val data: List<User>
+)
 
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding =
-            ItemTodoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-
-        return VH(binding)
-    }
-
-    override fun getItemCount(): Int = todos.size
-
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.binding.tvTitle.text = todos[position].title
-    }
+interface ApiService {
+    @GET("users")
+    fun getListUsers(@Query("page") page: Int): Call<ResponseUser>
 }
+
+//class TodosAdapter(val todos: List<Todo>) : RecyclerView.Adapter<TodosAdapter.VH>() {
+//    class VH(val binding: ItemTodoBinding) : RecyclerView.ViewHolder(binding.root) {
+//
+//    }
+//
+//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+//        val binding =
+//            ItemTodoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+//
+//        return VH(binding)
+//    }
+//
+//    override fun getItemCount(): Int = todos.size
+//
+//    override fun onBindViewHolder(holder: VH, position: Int) {
+//        holder.binding.tvTitle.text = todos[position].title
+//    }
+//}
 
 class MainActivity : AppCompatActivity() {
     private lateinit var _binding: ActivityMainBinding
@@ -59,62 +66,32 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(_binding.root)
 
+        val chucker =
+            OkHttpClient.Builder().addInterceptor(ChuckerInterceptor(this@MainActivity)).build()
+
+        val api = Retrofit.Builder().baseUrl("https://reqres.in/api/")
+            .addConverterFactory(GsonConverterFactory.create()).client(chucker).build()
+            .create(ApiService::class.java)
+
         _binding.btnStart.setOnClickListener {
-            getTodos()
+            lifecycleScope.launch(Dispatchers.IO) {
+                val client = api.getListUsers(1)
+
+                val response = client.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        _binding.tvText.text = response.body().toString()
+                    }
+                }
+            }
         }
         val layout = LinearLayoutManager(this@MainActivity)
         _binding.listTodos.layoutManager = layout
         _binding.listTodos.addItemDecoration(
             DividerItemDecoration(
-                this@MainActivity,
-                layout.orientation
+                this@MainActivity, layout.orientation
             )
         )
-    }
-
-    fun getTodos() {
-        _binding.progressBar.visibility = View.VISIBLE
-        val client = AsyncHttpClient()
-
-        client.get(
-            "https://jsonplaceholder.typicode.com/todos",
-            object : AsyncHttpResponseHandler() {
-                override fun onSuccess(
-                    statusCode: Int,
-                    headers: Array<out Header>,
-                    responseBody: ByteArray
-                ) {
-                    val listTodos = ArrayList<Todo>()
-                    try {
-                        val responseObject = JSONArray(String(responseBody))
-
-                        for (i in 0 until responseObject.length()) {
-                            with(responseObject.getJSONObject(i)) {
-                                listTodos.add(Todo(this.getString("title")))
-                            }
-                        }
-
-                        _binding.listTodos.adapter = TodosAdapter(listTodos)
-
-                        _binding.progressBar.visibility = View.INVISIBLE
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-
-                override fun onFailure(
-                    statusCode: Int,
-                    headers: Array<out Header>?,
-                    responseBody: ByteArray?,
-                    error: Throwable?
-                ) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        statusCode.toString(),
-                        Toast.LENGTH_LONG
-                    ).show()
-                    _binding.progressBar.visibility = View.INVISIBLE
-                }
-            })
     }
 }
