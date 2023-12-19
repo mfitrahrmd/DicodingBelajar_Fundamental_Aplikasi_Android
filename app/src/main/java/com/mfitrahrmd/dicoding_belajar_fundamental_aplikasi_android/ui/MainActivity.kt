@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.response.CustomerReviewsItem
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.response.PostReviewResponse
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.response.Restaurant
@@ -48,6 +49,10 @@ class MainActivity : AppCompatActivity() {
 
         _vm.isLoading.observe(this@MainActivity) {
             showLoading(it)
+        }
+
+        _vm.snackbarText.observe(this@MainActivity) {
+            Snackbar.make(window.decorView.rootView, it, Snackbar.LENGTH_SHORT).show()
         }
     }
 
