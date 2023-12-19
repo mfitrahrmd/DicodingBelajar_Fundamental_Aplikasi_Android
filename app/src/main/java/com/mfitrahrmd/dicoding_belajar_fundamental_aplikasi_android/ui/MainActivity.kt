@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,10 +21,7 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     private lateinit var _binding: ActivityMainBinding
-
-    companion object {
-        private const val RESTAURANT_ID = "uewq1zg2zlskfw1e867"
-    }
+    private val _vm: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(_binding.root)
 
         _binding.btnSend.setOnClickListener {
-            postReview(_binding.edReview.text.toString())
+            _vm.postReview(_binding.edReview.text.toString())
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
@@ -40,60 +38,19 @@ class MainActivity : AppCompatActivity() {
         _binding.rvReview.layoutManager = layout
         _binding.rvReview.addItemDecoration(itemDecoration)
 
-        findRestaurant()
+        _vm.restaurant.observe(this@MainActivity) {
+            setRestaurantData(it)
+        }
+
+        _vm.listReview.observe(this@MainActivity) {
+            setReviewData(it)
+        }
+
+        _vm.isLoading.observe(this@MainActivity) {
+            showLoading(it)
+        }
     }
 
-    private fun postReview(review: String) {
-        showLoading(true)
-        val client = ApiConfig.getApiService().postReview(RESTAURANT_ID, "Rama", review)
-        client.enqueue(object : retrofit2.Callback<PostReviewResponse> {
-            override fun onResponse(
-                call: Call<PostReviewResponse>,
-                response: Response<PostReviewResponse>
-            ) {
-                showLoading(false)
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        setReviewData(responseBody.customerReviews)
-                    }
-                } else {
-                    Log.e("FAILED", response.message())
-                }
-            }
-
-            override fun onFailure(call: Call<PostReviewResponse>, t: Throwable) {
-                showLoading(false)
-                Log.e("FAILED", t.message.toString())
-            }
-        })
-    }
-
-    private fun findRestaurant() {
-        showLoading(true)
-        val client = ApiConfig.getApiService().getRestaurant(RESTAURANT_ID)
-        client.enqueue(object : retrofit2.Callback<RestaurantResponse> {
-            override fun onResponse(
-                call: Call<RestaurantResponse>, response: Response<RestaurantResponse>
-            ) {
-                showLoading(false)
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        setRestaurantData(responseBody.restaurant)
-                        setReviewData(responseBody.restaurant.customerReviews)
-                    }
-                } else {
-                    Log.e("FAILED", response.message())
-                }
-            }
-
-            override fun onFailure(call: Call<RestaurantResponse>, t: Throwable) {
-                showLoading(false)
-                Log.e("FAILED", t.message.toString())
-            }
-        })
-    }
 
     private fun setRestaurantData(restaurant: Restaurant) {
         _binding.tvTitle.text = restaurant.name
