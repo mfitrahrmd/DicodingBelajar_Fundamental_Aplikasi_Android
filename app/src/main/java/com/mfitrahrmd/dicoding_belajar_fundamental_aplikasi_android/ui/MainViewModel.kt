@@ -9,6 +9,7 @@ import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.respons
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.response.Restaurant
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.response.RestaurantResponse
 import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.data.retrofit.ApiConfig
+import com.mfitrahrmd.dicoding_belajar_fundamental_aplikasi_android.util.Event
 import retrofit2.Call
 import retrofit2.Response
 
@@ -22,8 +23,8 @@ class MainViewModel : ViewModel() {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _snackbarText: MutableLiveData<String> = MutableLiveData()
-    val snackbarText: LiveData<String> = _snackbarText
+    private val _snackbarText: MutableLiveData<Event<String>> = MutableLiveData()
+    val snackbarText: LiveData<Event<String>> = _snackbarText
 
     companion object {
         private const val TAG = "MainViewModel"
@@ -74,7 +75,7 @@ class MainViewModel : ViewModel() {
                     val responseBody = response.body()
                     if (responseBody != null) {
                         _listReview.value = responseBody.customerReviews
-                        _snackbarText.value = responseBody.message
+                        _snackbarText.value = Event(responseBody.message)
                     }
                 } else {
                     Log.e("FAILED", response.message())

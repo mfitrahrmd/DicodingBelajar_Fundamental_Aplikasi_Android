@@ -52,7 +52,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         _vm.snackbarText.observe(this@MainActivity) {
-            Snackbar.make(window.decorView.rootView, it, Snackbar.LENGTH_SHORT).show()
+            it.getContentIfNotHandled()?.let {
+                Snackbar.make(window.decorView.rootView, it, Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 
