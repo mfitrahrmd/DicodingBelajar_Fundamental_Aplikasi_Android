@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val height = etHeight.text.toString().trim()
             when {
                 TextUtils.isEmpty(width) -> {
-                    etLength.error = "Field cannot be empty"
+                    etWidth.error = "Field cannot be empty"
                 }
 
                 TextUtils.isEmpty(length) -> {
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 TextUtils.isEmpty(height) -> {
-                    etLength.error = "Field cannot be empty"
+                    etHeight.error = "Field cannot be empty"
                 }
 
                 else -> {
