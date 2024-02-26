@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Dicoding-Belajar_Fundamental_Aplikasi_Android</string>
+    <string name="empty">Field cannot be empty</string>
+    <string name="changed">Data changed</string>
+    <string name="added">Data added</string>
 </resources>
